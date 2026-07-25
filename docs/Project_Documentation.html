@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honeypot Security Dashboard - Complete Project Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #fff;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a1a2e;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #4fb7b3;
+            padding-bottom: 20px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: #1a1a2e;
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4fb7b3;
+        }
+
+        h3 {
+            color: #2d3436;
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        h4 {
+            color: #4fb7b3;
+            font-size: 1.1em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #e74c3c;
+        }
+
+        pre {
+            background: #1a1a2e;
+            color: #a8fbd3;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #4fb7b3;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .info-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        ul,
+        ol {
+            margin: 15px 0 15px 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+        }
+
+        .toc ol {
+            margin-bottom: 0;
+        }
+
+        .architecture-diagram {
+            background: #1a1a2e;
+            color: #4fb7b3;
+            padding: 25px;
+            border-radius: 10px;
+            font-family: 'Consolas', monospace;
+            white-space: pre;
+            overflow-x: auto;
+            line-height: 1.4;
+        }
+
+        .page-break {
+            page-break-after: always;
+        }
+
+        @media print {
+            body {
+                padding: 20px;
+            }
+
+            h2 {
+                page-break-before: always;
+            }
+
+            pre,
+            .architecture-diagram {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🛡️ Honeypot Security Dashboard</h1>
+    <p class="subtitle">Complete Project Documentation for Learning</p>
+    <p class="subtitle"><strong>Computer Security Project - Semester 6</strong></p>
+
+    <div class="toc">
+        <h3>📑 Table of Contents</h3>
+        <ol>
+            <li>Introduction to Honeypots</li>
+            <li>Project Overview</li>
+            <li>Technology Stack Explained</li>
+            <li>System Architecture</li>
+            <li>Backend Implementation</li>
+            <li>Frontend Implementation</li>
+            <li>Machine Learning Model</li>
+            <li>Database Design</li>
+            <li>API Documentation</li>
+            <li>How to Run the Project</li>
+            <li>Key Concepts Learned</li>
+        </ol>
+    </div>
+
+    <!-- Section 1 -->
+    <h2>1. Introduction to Honeypots</h2>
+
+    <h3>What is a Honeypot?</h3>
+    <p>
+        A <strong>honeypot</strong> is a cybersecurity mechanism that creates a <em>decoy system</em> designed to
+        attract and detect attackers. It appears to be a legitimate target (like a real server or database)
+        but is actually an isolated, monitored environment that logs all activities.
+    </p>
+
+    <div class="info-box">
+        <strong>🎯 Key Idea:</strong> Instead of waiting for attackers to find your real systems,
+        you create fake ones that look attractive to hackers. When they attack these fake systems,
+        you learn about their techniques without risking your real data!
+    </div>
+
+    <h3>Types of Honeypots</h3>
+    <table>
+        <tr>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Example</th>
+        </tr>
+        <tr>
+            <td><strong>Low-Interaction</strong></td>
+            <td>Simulates limited services, easy to deploy</td>
+            <td>Fake login page, open port</td>
+        </tr>
+        <tr>
+            <td><strong>High-Interaction</strong></td>
+            <td>Full operating system/application for deep analysis</td>
+            <td>Full fake database server</td>
+        </tr>
+        <tr>
+            <td><strong>Research Honeypots</strong></td>
+            <td>Used by security researchers to study attack patterns</td>
+            <td>University research labs</td>
+        </tr>
+    </table>
+
+    <h3>Why Use Honeypots?</h3>
+    <ul>
+        <li><strong>Early Detection:</strong> Catch attackers before they reach real systems</li>
+        <li><strong>Threat Intelligence:</strong> Learn about new attack techniques</li>
+        <li><strong>Low False Positives:</strong> Any activity on a honeypot is suspicious by definition</li>
+        <li><strong>Attacker Diversion:</strong> Keep attackers busy with fake systems</li>
+    </ul>
+
+    <!-- Section 2 -->
+    <h2>2. Project Overview</h2>
+
+    <h3>What We Built</h3>
+    <p>
+        We developed a <strong>Honeypot Security Dashboard</strong> - a complete security monitoring system that:
+    </p>
+    <ol>
+        <li>Creates fake vulnerable endpoints to attract attackers</li>
+        <li>Logs all attack attempts with detailed information</li>
+        <li>Uses Machine Learning to classify attack types</li>
+        <li>Displays everything on a beautiful real-time dashboard</li>
+        <li>Shows attack origins on an interactive world map</li>
+        <li>Provides an AI assistant for security guidance</li>
+    </ol>
+
+    <div class="highlight-box">
+        <h4 style="margin-top:0; color: white;">🚀 Project Highlights</h4>
+        <ul style="margin-bottom:0;">
+            <li>Full-stack application (React + Flask)</li>
+            <li>Real-time updates using Server-Sent Events (SSE)</li>
+            <li>ML-based attack classification</li>
+            <li>Geographic attack visualization</li>
+            <li>AI-powered security chatbot</li>
+        </ul>
+    </div>
+
+    <h3>Problem We're Solving</h3>
+    <p>
+        Organizations face several challenges in cybersecurity:
+    </p>
+    <ul>
+        <li>Cyber attacks are increasing by 38% every year</li>
+        <li>Average time to detect a breach is 197 days</li>
+        <li>Security teams are overwhelmed with log data</li>
+        <li>No real-time visibility into attack patterns</li>
+    </ul>
+    <p>
+        Our solution provides <strong>instant visibility</strong> into attacks with
+        <strong>automated classification</strong> and <strong>visual analytics</strong>.
+    </p>
+
+    <!-- Section 3 -->
+    <h2>3. Technology Stack Explained</h2>
+
+    <h3>Frontend Technologies</h3>
+
+    <h4>React (v19)</h4>
+    <p>
+        React is a JavaScript library for building user interfaces. It uses a
+        <strong>component-based architecture</strong> where you break the UI into
+        reusable pieces. Each component manages its own state and renders when that state changes.
+    </p>
+    <pre>
+// Example: A simple React component
+function ThreatCard({ threat }) {
+    return (
+        &lt;div className="card"&gt;
+            &lt;h3&gt;{threat.type}&lt;/h3&gt;
+            &lt;p&gt;IP: {threat.ip}&lt;/p&gt;
+            &lt;p&gt;Location: {threat.location}&lt;/p&gt;
+        &lt;/div&gt;
+    );
+}</pre>
+
+    <h4>TypeScript</h4>
+    <p>
+        TypeScript adds <strong>type safety</strong> to JavaScript. It catches errors
+        at compile-time rather than runtime. This makes code more reliable and easier to maintain.
+    </p>
+    <pre>
+// TypeScript interface defines the shape of data
+interface Threat {
+    id: string;
+    type: string;
+    ip: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    timestamp: string;
+}
+
+// Now TypeScript will warn if we use wrong properties
+const threat: Threat = {
+    id: '1',
+    type: 'SQL Injection',
+    ip: '192.168.1.1',
+    severity: 'critical',
+    timestamp: '2026-01-15T00:00:00Z'
+};</pre>
+
+    <h4>Vite</h4>
+    <p>
+        Vite is a modern build tool that provides <strong>extremely fast</strong> development
+        experience. Unlike older tools like Webpack, Vite uses native ES modules for instant
+        server start and hot module replacement.
+    </p>
+
+    <h4>Recharts</h4>
+    <p>
+        Recharts is a charting library built on React. We use it to create:
+    </p>
+    <ul>
+        <li><strong>AreaChart:</strong> Attack volume over time</li>
+        <li><strong>PieChart:</strong> Attack type distribution</li>
+        <li><strong>BarChart:</strong> Top attacking countries</li>
+    </ul>
+
+    <h4>Leaflet (React-Leaflet)</h4>
+    <p>
+        Leaflet is an open-source JavaScript library for interactive maps.
+        React-Leaflet provides React components for Leaflet. We use it to show
+        attack origins on a world map.
+    </p>
+
+    <h4>Framer Motion</h4>
+    <p>
+        Framer Motion is an animation library for React. It makes it easy to add
+        smooth animations and transitions to components.
+    </p>
+
+    <h3>Backend Technologies</h3>
+
+    <h4>Python Flask</h4>
+    <p>
+        Flask is a lightweight web framework for Python. It's called a "micro-framework"
+        because it doesn't require particular tools or libraries. It's simple but powerful.
+    </p>
+    <pre>
+# Simple Flask application
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+
+@app.route('/api/hello')
+def hello():
+    return jsonify({"message": "Hello World!"})
+
+if __name__ == '__main__':
+    app.run(debug=True)</pre>
+
+    <h4>Flask-SQLAlchemy</h4>
+    <p>
+        SQLAlchemy is an ORM (Object-Relational Mapping) that lets you work with
+        databases using Python objects instead of SQL queries.
+    </p>
+    <pre>
+# Define a database model
+class AttackLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ip_address = db.Column(db.String(50))
+    attack_type = db.Column(db.String(50))
+    timestamp = db.Column(db.DateTime)
+
+# Query the database using Python
+attacks = AttackLog.query.filter_by(attack_type='SQL Injection').all()</pre>
+
+    <h4>scikit-learn</h4>
+    <p>
+        scikit-learn is a machine learning library. We use it to train a classifier
+        that predicts the type of attack based on the payload content.
+    </p>
+
+    <h4>GeoIP2</h4>
+    <p>
+        GeoIP2 is a library for looking up geographic location from IP addresses.
+        It uses MaxMind's GeoLite2 database to find the country and city of attackers.
+    </p>
+
+    <h4>PyJWT</h4>
+    <p>
+        PyJWT is used for creating and verifying JSON Web Tokens (JWT). We use it
+        for user authentication - when a user logs in, they get a token that proves
+        their identity.
+    </p>
+
+    <!-- Section 4 -->
+    <h2>4. System Architecture</h2>
+
+    <div class="architecture-diagram">
+        ┌─────────────────┐
+        │ ATTACKER │
+        └────────┬────────┘
+        │
+        ▼
+        ┌─────────────────────────────────────────────────────────────┐
+        │ HONEYPOT LAYER │
+        │ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
+        │ │ /login │ │ /admin │ │ /.env │ │ /database.sql│ │
+        │ └──────────┘ └──────────┘ └──────────┘ └──────────────┘ │
+        └─────────────────────────┬───────────────────────────────────┘
+        │
+        ▼
+        ┌─────────────────────────────────────────────────────────────┐
+        │ BACKEND (Flask) │
+        │ ┌────────────────┐ ┌────────────────┐ ┌──────────────┐ │
+        │ │ ML Classifier │ │ GeoIP Lookup │ │ SSE Stream │ │
+        │ └────────────────┘ └────────────────┘ └──────────────┘ │
+        │ ┌────────────────┐ ┌────────────────┐ ┌──────────────┐ │
+        │ │ Auth (JWT) │ │ Database (SQL) │ │ REST APIs │ │
+        │ └────────────────┘ └────────────────┘ └──────────────┘ │
+        └─────────────────────────┬───────────────────────────────────┘
+        │
+        ▼
+        ┌─────────────────────────────────────────────────────────────┐
+        │ FRONTEND (React) │
+        │ ┌────────────────┐ ┌────────────────┐ ┌──────────────┐ │
+        │ │ Live Threat │ │ Analytics │ │ World Map │ │
+        │ │ Feed │ │ Dashboard │ │ │ │
+        │ └────────────────┘ └────────────────┘ └──────────────┘ │
+        │ ┌────────────────┐ ┌────────────────┐ ┌──────────────┐ │
+        │ │ AI Chat │ │ Auth Pages │ │ Node Status │ │
+        │ │ (Gemini) │ │ (Login/Signup) │ │ │ │
+        │ └────────────────┘ └────────────────┘ └──────────────┘ │
+        └─────────────────────────────────────────────────────────────┘
+    </div>
+
+    <h3>How Data Flows</h3>
+    <ol>
+        <li><strong>Attacker</strong> accesses a honeypot endpoint (e.g., /login)</li>
+        <li><strong>Flask</strong> receives the request and extracts payload data</li>
+        <li><strong>ML Classifier</strong> analyzes the payload to determine attack type</li>
+        <li><strong>GeoIP</strong> looks up attacker's location from their IP address</li>
+        <li><strong>Database</strong> stores the attack log</li>
+        <li><strong>SSE</strong> broadcasts the new attack to all connected dashboards</li>
+        <li><strong>React Dashboard</strong> displays the attack in real-time</li>
+    </ol>
+
+    <!-- Section 5 -->
+    <h2>5. Backend Implementation</h2>
+
+    <h3>5.1 Main Application (app.py)</h3>
+    <p>
+        This is the entry point of our Flask application. It initializes the app,
+        connects to the database, and registers all the route blueprints.
+    </p>
+    <pre>
+from flask import Flask
+from flask_cors import CORS
+from models.log_entry import db
+from routes.honeypot import honeypot_bp
+from routes.dashboard import dashboard_bp
+from routes.auth import auth_bp
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+
+CORS(app)  # Allow cross-origin requests from React
+db.init_app(app)
+
+# Register route blueprints
+app.register_blueprint(honeypot_bp)
+app.register_blueprint(dashboard_bp)
+app.register_blueprint(auth_bp)
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # Create database tables
+    app.run(debug=True, port=5000)</pre>
+
+    <div class="info-box">
+        <strong>📘 What are Blueprints?</strong><br>
+        Blueprints are a way to organize Flask applications. Instead of putting all routes
+        in one file, we split them into logical groups (honeypot routes, dashboard routes, etc.)
+    </div>
+
+    <h3>5.2 Honeypot Routes (routes/honeypot.py)</h3>
+    <p>
+        These are the fake endpoints that attract attackers. Each endpoint logs
+        the attack attempt and returns a believable response to keep the attacker engaged.
+    </p>
+    <pre>
+@honeypot_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Get the data attacker submitted
+        data = request.get_json() or request.form
+        username = data.get('username')
+        password = data.get('password')
+        
+        # Log this attack attempt
+        payload = f"User: {username}, Pass: {password}"
+        log_attack('/login', 'POST', payload)
+        
+        # Return fake error to keep attacker trying
+        return jsonify({"error": "Invalid credentials"}), 401
+    
+    return jsonify({"message": "Login required"}), 200
+
+@honeypot_bp.route('/.env', methods=['GET'])
+def fake_env():
+    # Log that someone tried to access config file
+    log_attack('/.env', 'GET', "Attempted to access sensitive config")
+    
+    # Return fake config data (not real credentials!)
+    fake_content = "DB_HOST=localhost\nDB_PASS=password123"
+    return Response(fake_content, mimetype='text/plain')</pre>
+
+    <h3>5.3 Attack Logging Function</h3>
+    <p>
+        This function is called whenever an attacker hits our honeypot. It collects
+        all information about the attack and saves it to the database.
+    </p>
+    <pre>
+def log_attack(endpoint, method, payload=None):
+    # Get attacker's IP address
+    ip = request.remote_addr
+    
+    # Get their browser/tool info
+    user_agent = request.headers.get('User-Agent')
+    
+    # Look up their geographic location
+    location = get_location(ip)
+    country = location["country"]
+    city = location["city"]
+    lat = location["lat"]
+    lon = location["lon"]
+    
+    # Use ML to classify the attack type
+    attack_type = classifier.predict(payload)
+    
+    # Create database record
+    log = AttackLog(
+        ip_address=ip,
+        country=country,
+        city=city,
+        endpoint=endpoint,
+        method=method,
+        payload=payload,
+        user_agent=user_agent,
+        attack_type=attack_type
+    )
+    db.session.add(log)
+    db.session.commit()
+    
+    # Broadcast to dashboard via SSE
+    announcer.announce(f"data: {json.dumps(log.to_dict())}\n\n")</pre>
+
+    <h3>5.4 Real-time Updates with SSE</h3>
+    <p>
+        Server-Sent Events (SSE) allow the server to push updates to the browser
+        without the browser asking. This is how we show attacks in real-time.
+    </p>
+    <pre>
+# SSE endpoint that browsers connect to
+@app.route('/api/stream')
+def stream():
+    def event_stream():
+        messages = announcer.listen()  # Wait for new messages
+        while True:
+            msg = messages.get()  # Blocks until new attack
+            yield msg  # Send to browser
+    
+    response = Response(event_stream(), mimetype="text/event-stream")
+    response.headers['Cache-Control'] = 'no-cache'
+    return response</pre>
+
+    <div class="warning-box">
+        <strong>⚠️ SSE vs WebSocket</strong><br>
+        SSE is simpler than WebSocket and works over regular HTTP. It's one-way
+        (server to client only), which is perfect for our use case. WebSocket
+        would be overkill since we only need to push data, not receive from the dashboard.
+    </div>
+
+    <!-- Section 6 -->
+    <h2>6. Frontend Implementation</h2>
+
+    <h3>6.1 Application Structure</h3>
+    <pre>
+honeypot-security-dashboard/
+├── App.tsx              # Main application component
+├── index.tsx            # Entry point
+├── index.css            # Global styles
+├── types.ts             # TypeScript type definitions
+├── components/
+│   ├── AnalyticsDashboard.tsx   # Charts and statistics
+│   ├── WorldMap.tsx             # Leaflet map component
+│   ├── AIChat.tsx               # Gemini AI chatbot
+│   ├── AuthPage.tsx             # Login/Signup forms
+│   ├── LoginPage.tsx            # Login wrapper
+│   ├── FluidBackground.tsx      # Animated background
+│   ├── GlitchText.tsx           # Animated text effects
+│   └── CustomCursor.tsx         # Custom mouse cursor
+├── contexts/
+│   └── AuthContext.tsx          # Authentication state
+└── services/
+    ├── api.ts                   # API helper functions
+    └── geminiService.ts         # AI chat integration</pre>
+
+    <h3>6.2 Fetching Live Threats</h3>
+    <p>
+        The dashboard connects to the SSE endpoint and listens for new attacks.
+        When an attack comes in, it updates the state and shows a notification.
+    </p>
+    <pre>
+// In App.tsx - Subscribe to live attack feed
+useEffect(() => {
+    // Fetch existing threats first
+    fetchThreats(20).then((threats) => {
+        setLiveThreats(threats);
+    });
+    
+    // Subscribe to live feed
+    const unsubscribe = subscribeToLiveFeed(
+        (newThreat) => {
+            // Add new threat to the list
+            setLiveThreats((prev) => [newThreat, ...prev].slice(0, 50));
+            
+            // Show visual alert
+            setAttackAlert(newThreat);
+            
+            // Play sound
+            const audio = new Audio('alert.wav');
+            audio.play();
+        }
+    );
+    
+    return () => unsubscribe();
+}, []);</pre>
+
+    <h3>6.3 SSE Subscription Helper</h3>
+    <pre>
+// In services/api.ts
+export function subscribeToLiveFeed(
+    onNewThreat: (threat: Threat) => void,
+    onError?: () => void
+): () => void {
+    const apiBase = getApiBase();
+    const eventSource = new EventSource(`${apiBase}/api/stream`);
+    
+    eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const threat: Threat = {
+            id: data.id.toString(),
+            type: data.attack_type,
+            ip: data.ip_address,
+            location: `${data.city}, ${data.country}`,
+            severity: getSeverity(data.attack_type),
+            timestamp: data.timestamp,
+            description: data.payload || 'Suspicious activity detected'
+        };
+        onNewThreat(threat);
+    };
+    
+    eventSource.onerror = () => {
+        if (onError) onError();
+        eventSource.close();
+    };
+    
+    // Return cleanup function
+    return () => eventSource.close();
+}</pre>
+
+    <h3>6.4 Analytics Dashboard Component</h3>
+    <p>
+        This component fetches statistics from the backend and displays them
+        using Recharts visualizations.
+    </p>
+    <pre>
+const AnalyticsDashboard: React.FC = () => {
+    const [stats, setStats] = useState&lt;Stats | null&gt;(null);
+    
+    // Fetch stats from API
+    useEffect(() => {
+        const fetchStats = async () => {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+            setStats(data);
+        };
+        
+        fetchStats();
+        // Refresh every 30 seconds
+        const interval = setInterval(fetchStats, 30000);
+        return () => clearInterval(interval);
+    }, []);
+    
+    return (
+        &lt;div&gt;
+            {/* Attack Volume Chart */}
+            &lt;AreaChart data={stats.attacks_over_time}&gt;
+                &lt;Area 
+                    type="monotone" 
+                    dataKey="count" 
+                    fill="#ef4444" 
+                /&gt;
+            &lt;/AreaChart&gt;
+            
+            {/* Attack Types Pie Chart */}
+            &lt;PieChart&gt;
+                &lt;Pie data={typeData} dataKey="value" /&gt;
+            &lt;/PieChart&gt;
+        &lt;/div&gt;
+    );
+};</pre>
+
+    <h3>6.5 World Map Component</h3>
+    <p>
+        Uses React-Leaflet to display attack origins on an interactive map.
+    </p>
+    <pre>
+const WorldMap: React.FC = () => {
+    const [attacks, setAttacks] = useState&lt;AttackLocation[]&gt;([]);
+    
+    useEffect(() => {
+        const fetchLocations = async () => {
+            const response = await fetch('/api/attack-locations');
+            const data = await response.json();
+            setAttacks(data);
+        };
+        fetchLocations();
+    }, []);
+    
+    return (
+        &lt;MapContainer center={[20, 0]} zoom={2}&gt;
+            &lt;TileLayer
+                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+            /&gt;
+            
+            {attacks.map((attack) => (
+                &lt;CircleMarker
+                    key={attack.id}
+                    center={[attack.lat, attack.lon]}
+                    radius={8}
+                    pathOptions={{
+                        color: getSeverityColor(attack.severity),
+                        fillOpacity: 0.7
+                    }}
+                &gt;
+                    &lt;Popup&gt;
+                        &lt;p&gt;{attack.attack_type}&lt;/p&gt;
+                        &lt;p&gt;IP: {attack.ip_address}&lt;/p&gt;
+                    &lt;/Popup&gt;
+                &lt;/CircleMarker&gt;
+            ))}
+        &lt;/MapContainer&gt;
+    );
+};</pre>
+
+    <!-- Section 7 -->
+    <h2>7. Machine Learning Model</h2>
+
+    <h3>7.1 Attack Classification</h3>
+    <p>
+        Our ML model classifies attack payloads into categories like SQL Injection,
+        XSS, Command Injection, etc. We use a <strong>hybrid approach</strong> that
+        combines pattern matching with ML.
+    </p>
+
+    <h3>7.2 Pattern-Based Detection</h3>
+    <p>
+        Regular expressions detect known attack patterns. This is fast and reliable
+        for common attacks.
+    </p>
+    <pre>
+class AttackClassifier:
+    def __init__(self):
+        self.attack_patterns = {
+            'SQL Injection': [
+                r"('\s*(OR|AND)\s*'?\d*\s*=\s*'?\d*)",  # ' OR '1'='1
+                r"(UNION\s+SELECT)",                     # UNION SELECT
+                r"(DROP\s+TABLE|DELETE\s+FROM)",         # Destructive queries
+            ],
+            'XSS': [
+                r"(&lt;script[^&gt;]*&gt;)",           # &lt;script&gt; tags
+                r"(javascript\s*:)",              # javascript: protocol
+                r"(on\w+\s*=)",                   # onclick=, onerror=
+            ],
+            'Command Injection': [
+                r"(;\s*cat\s|;\s*ls\s)",          # ; cat, ; ls
+                r"(`[^`]+`)",                      # Backtick execution
+                r"(/etc/passwd|/etc/shadow)",     # Sensitive files
+            ],
+            'Directory Traversal': [
+                r"(\.\.\/|\.\.\\)",               # ../
+                r"(%2e%2e\/|%2e%2e\\)",          # URL encoded ../
+            ]
+        }
+    
+    def pattern_based_detect(self, payload):
+        for attack_type, patterns in self.attack_patterns.items():
+            for pattern in patterns:
+                if re.search(pattern, payload, re.IGNORECASE):
+                    return attack_type
+        return None</pre>
+
+    <h3>7.3 ML Model Training</h3>
+    <p>
+        The ML model uses a <strong>TF-IDF Vectorizer</strong> to convert text payloads
+        into numerical features, then a classifier (like Random Forest or SVM) predicts
+        the attack type.
+    </p>
+    <pre>
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import RandomForestClassifier
+import pickle
+
+# Training data: (payload, attack_type) pairs
+training_data = [
+    ("' OR '1'='1", "SQL Injection"),
+    ("&lt;script&gt;alert(1)&lt;/script&gt;", "XSS"),
+    ("; cat /etc/passwd", "Command Injection"),
+    # ... more examples
+]
+
+# Split into features (X) and labels (y)
+X = [item[0] for item in training_data]
+y = [item[1] for item in training_data]
+
+# Create TF-IDF vectorizer
+vectorizer = TfidfVectorizer()
+X_features = vectorizer.fit_transform(X)
+
+# Train classifier
+classifier = RandomForestClassifier()
+classifier.fit(X_features, y)
+
+# Save models
+with open('classifier.pkl', 'wb') as f:
+    pickle.dump(classifier, f)
+with open('vectorizer.pkl', 'wb') as f:
+    pickle.dump(vectorizer, f)</pre>
+
+    <h3>7.4 Prediction Flow</h3>
+    <pre>
+def predict(self, payload):
+    if not payload:
+        return "Reconnaissance"
+    
+    # Step 1: Try pattern-based detection first (faster)
+    pattern_result = self.pattern_based_detect(payload)
+    if pattern_result:
+        return pattern_result
+    
+    # Step 2: Use ML model for unknown patterns
+    if self.model and self.vectorizer:
+        features = self.vectorizer.transform([payload])
+        prediction = self.model.predict(features)[0]
+        if prediction != "Normal":
+            return prediction
+    
+    # Step 3: Default classification
+    return "Suspicious Activity"</pre>
+
+    <div class="info-box">
+        <strong>💡 Why Hybrid Approach?</strong><br>
+        Pattern matching is fast and accurate for known attacks. ML helps detect
+        new variations that patterns might miss. Combining both gives us the best results!
+    </div>
+
+    <!-- Section 8 -->
+    <h2>8. Database Design</h2>
+
+    <h3>8.1 AttackLog Table</h3>
+    <p>
+        Stores all attack attempts captured by honeypots.
+    </p>
+    <table>
+        <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>id</td>
+            <td>INTEGER (PK)</td>
+            <td>Unique identifier</td>
+        </tr>
+        <tr>
+            <td>timestamp</td>
+            <td>DATETIME</td>
+            <td>When attack occurred</td>
+        </tr>
+        <tr>
+            <td>ip_address</td>
+            <td>VARCHAR(50)</td>
+            <td>Attacker's IP</td>
+        </tr>
+        <tr>
+            <td>country</td>
+            <td>VARCHAR(50)</td>
+            <td>Attacker's country</td>
+        </tr>
+        <tr>
+            <td>city</td>
+            <td>VARCHAR(50)</td>
+            <td>Attacker's city</td>
+        </tr>
+        <tr>
+            <td>endpoint</td>
+            <td>VARCHAR(100)</td>
+            <td>Target endpoint (/login, etc.)</td>
+        </tr>
+        <tr>
+            <td>method</td>
+            <td>VARCHAR(10)</td>
+            <td>HTTP method (GET/POST)</td>
+        </tr>
+        <tr>
+            <td>payload</td>
+            <td>TEXT</td>
+            <td>Attack payload content</td>
+        </tr>
+        <tr>
+            <td>user_agent</td>
+            <td>VARCHAR(200)</td>
+            <td>Browser/tool info</td>
+        </tr>
+        <tr>
+            <td>attack_type</td>
+            <td>VARCHAR(50)</td>
+            <td>ML classification result</td>
+        </tr>
+    </table>
+
+    <h3>8.2 Users Table</h3>
+    <p>
+        Stores dashboard user accounts.
+    </p>
+    <table>
+        <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>id</td>
+            <td>INTEGER (PK)</td>
+            <td>Unique identifier</td>
+        </tr>
+        <tr>
+            <td>username</td>
+            <td>VARCHAR(80)</td>
+            <td>Username (unique)</td>
+        </tr>
+        <tr>
+            <td>email</td>
+            <td>VARCHAR(120)</td>
+            <td>Email (unique)</td>
+        </tr>
+        <tr>
+            <td>password_hash</td>
+            <td>VARCHAR(256)</td>
+            <td>Hashed password</td>
+        </tr>
+        <tr>
+            <td>created_at</td>
+            <td>DATETIME</td>
+            <td>Account creation time</td>
+        </tr>
+        <tr>
+            <td>is_active</td>
+            <td>BOOLEAN</td>
+            <td>Account status</td>
+        </tr>
+    </table>
+
+    <h3>8.3 SQLAlchemy Model</h3>
+    <pre>
+class AttackLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    ip_address = db.Column(db.String(50))
+    country = db.Column(db.String(50))
+    city = db.Column(db.String(50))
+    endpoint = db.Column(db.String(100))
+    method = db.Column(db.String(10))
+    payload = db.Column(db.Text)
+    user_agent = db.Column(db.String(200))
+    attack_type = db.Column(db.String(50))
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'timestamp': self.timestamp.isoformat(),
+            'ip_address': self.ip_address,
+            'country': self.country,
+            'attack_type': self.attack_type,
+            # ... other fields
+        }</pre>
+
+    <!-- Section 9 -->
+    <h2>9. API Documentation</h2>
+
+    <h3>Honeypot APIs</h3>
+    <table>
+        <tr>
+            <th>Endpoint</th>
+            <th>Method</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><code>/login</code></td>
+            <td>GET, POST</td>
+            <td>Fake login page trap</td>
+        </tr>
+        <tr>
+            <td><code>/admin</code></td>
+            <td>GET, POST</td>
+            <td>Fake admin panel</td>
+        </tr>
+        <tr>
+            <td><code>/wp-admin</code></td>
+            <td>GET</td>
+            <td>WordPress trap</td>
+        </tr>
+        <tr>
+            <td><code>/.env</code></td>
+            <td>GET</td>
+            <td>Config file trap</td>
+        </tr>
+        <tr>
+            <td><code>/database.sql</code></td>
+            <td>GET</td>
+            <td>Database dump trap</td>
+        </tr>
+    </table>
+
+    <h3>Dashboard APIs</h3>
+    <table>
+        <tr>
+            <th>Endpoint</th>
+            <th>Method</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><code>/api/threats</code></td>
+            <td>GET</td>
+            <td>Get recent attack logs</td>
+        </tr>
+        <tr>
+            <td><code>/api/stats</code></td>
+            <td>GET</td>
+            <td>Get dashboard statistics</td>
+        </tr>
+        <tr>
+            <td><code>/api/attack-locations</code></td>
+            <td>GET</td>
+            <td>Get map coordinates</td>
+        </tr>
+        <tr>
+            <td><code>/api/stream</code></td>
+            <td>GET</td>
+            <td>SSE live feed</td>
+        </tr>
+        <tr>
+            <td><code>/api/block-ip</code></td>
+            <td>POST</td>
+            <td>Block an IP address</td>
+        </tr>
+    </table>
+
+    <h3>Authentication APIs</h3>
+    <table>
+        <tr>
+            <th>Endpoint</th>
+            <th>Method</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td><code>/api/auth/signup</code></td>
+            <td>POST</td>
+            <td>Register new user</td>
+        </tr>
+        <tr>
+            <td><code>/api/auth/login</code></td>
+            <td>POST</td>
+            <td>Login user</td>
+        </tr>
+        <tr>
+            <td><code>/api/auth/verify</code></td>
+            <td>GET</td>
+            <td>Verify JWT token</td>
+        </tr>
+        <tr>
+            <td><code>/api/auth/logout</code></td>
+            <td>POST</td>
+            <td>Logout user</td>
+        </tr>
+    </table>
+
+    <h3>Example API Response</h3>
+    <pre>
+// GET /api/stats
+{
+    "total_attacks": 1234,
+    "country_stats": {
+        "United States": 450,
+        "China": 320,
+        "Russia": 180
+    },
+    "type_stats": {
+        "SQL Injection": 280,
+        "XSS": 210,
+        "Brute Force": 350
+    },
+    "attacks_over_time": [
+        {"time": "00:00", "count": 45},
+        {"time": "01:00", "count": 32}
+    ],
+    "top_attackers": [
+        {"ip": "192.168.1.1", "count": 50, "rank": 1}
+    ]
+}</pre>
+
+    <!-- Section 10 -->
+    <h2>10. How to Run the Project</h2>
+
+    <h3>Prerequisites</h3>
+    <ul>
+        <li>Python 3.8+ installed</li>
+        <li>Node.js 18+ installed</li>
+        <li>Git installed</li>
+    </ul>
+
+    <h3>Step 1: Clone the Repository</h3>
+    <pre>
+git clone https://github.com/your-repo/honeypot-security-dashboard.git
+cd honeypot-security-dashboard</pre>
+
+    <h3>Step 2: Setup Backend</h3>
+    <pre>
+# Navigate to backend folder
+cd backend
+
+# Create virtual environment
+python -m venv virt
+
+# Activate virtual environment
+# Windows:
+virt\Scripts\activate
+# Linux/Mac:
+source virt/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the backend server
+python app.py</pre>
+    <p>Backend will run at: <code>http://localhost:5000</code></p>
+
+    <h3>Step 3: Setup Frontend</h3>
+    <pre>
+# Open new terminal, navigate to project root
+cd honeypot-security-dashboard
+
+# Install dependencies
+npm install
+
+# Run the development server
+npm run dev</pre>
+    <p>Frontend will run at: <code>http://localhost:3000</code></p>
+
+    <h3>Step 4: Test the Honeypot</h3>
+    <p>Open another terminal and try attacking the honeypot:</p>
+    <pre>
+# Test SQL Injection
+curl -X POST http://localhost:5000/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "' OR '1'='1"}'
+
+# Test XSS
+curl "http://localhost:5000/login?search=&lt;script&gt;alert(1)&lt;/script&gt;"
+
+# View on dashboard
+# Open http://localhost:3000 in browser</pre>
+
+    <!-- Section 11 -->
+    <h2>11. Key Concepts Learned</h2>
+
+    <h3>Web Development</h3>
+    <ul>
+        <li><strong>Full-Stack Development:</strong> Building both frontend (React) and backend (Flask)</li>
+        <li><strong>REST APIs:</strong> Creating and consuming HTTP endpoints</li>
+        <li><strong>Real-time Communication:</strong> Using Server-Sent Events for live updates</li>
+        <li><strong>State Management:</strong> Using React hooks (useState, useEffect, useContext)</li>
+    </ul>
+
+    <h3>Security Concepts</h3>
+    <ul>
+        <li><strong>Honeypot Design:</strong> Creating convincing decoy systems</li>
+        <li><strong>Attack Pattern Recognition:</strong> Identifying SQL Injection, XSS, etc.</li>
+        <li><strong>JWT Authentication:</strong> Secure token-based authentication</li>
+        <li><strong>Password Hashing:</strong> Secure password storage</li>
+    </ul>
+
+    <h3>Machine Learning</h3>
+    <ul>
+        <li><strong>Text Classification:</strong> Converting payloads to features</li>
+        <li><strong>TF-IDF Vectorization:</strong> Text feature extraction</li>
+        <li><strong>Pattern Matching:</strong> Using regex for attack detection</li>
+    </ul>
+
+    <h3>Data Visualization</h3>
+    <ul>
+        <li><strong>Chart Libraries:</strong> Creating interactive charts with Recharts</li>
+        <li><strong>Geographic Mapping:</strong> Displaying data on maps with Leaflet</li>
+        <li><strong>Real-time Updates:</strong> Animating data changes</li>
+    </ul>
+
+    <h3>Database Management</h3>
+    <ul>
+        <li><strong>ORM Usage:</strong> Working with SQLAlchemy</li>
+        <li><strong>Schema Design:</strong> Designing efficient table structures</li>
+        <li><strong>Query Optimization:</strong> Aggregations and filtering</li>
+    </ul>
+
+    <div class="highlight-box">
+        <h4 style="margin-top:0; color:white;">🎓 Skills You've Gained</h4>
+        <p style="margin-bottom:0;">
+            This project combines <strong>web development</strong>, <strong>cybersecurity</strong>,
+            <strong>machine learning</strong>, and <strong>data visualization</strong> - making it
+            an excellent addition to your portfolio and resume!
+        </p>
+    </div>
+
+    <div class="footer">
+        <p><strong>Honeypot Security Dashboard</strong></p>
+        <p>Computer Security Project - Semester 6</p>
+        <p>Documentation created: January 2026</p>
+        <p><em>To save as PDF: Press Ctrl+P (or Cmd+P on Mac) → Save as PDF</em></p>
+    </div>
+
+</body>
+
+</html>

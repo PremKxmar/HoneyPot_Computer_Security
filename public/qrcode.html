@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 Scan to Attack - Honeypot Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a0a0a 100%);
+            min-height: 100vh;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #ef4444;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: #ef4444;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        #qrcode {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .url-display {
+            background: #1a1a1f;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            word-break: break-all;
+            color: #4fb7b3;
+            margin-bottom: 20px;
+        }
+
+        .instructions {
+            text-align: left;
+            background: rgba(79, 183, 179, 0.1);
+            border: 1px solid #4fb7b3;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .instructions h3 {
+            color: #4fb7b3;
+            margin-bottom: 10px;
+        }
+
+        .config-section {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .config-section label {
+            display: block;
+            color: #888;
+            font-size: 11px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .config-section input {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1f;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .config-section button {
+            margin-top: 10px;
+            padding: 12px 24px;
+            background: #ef4444;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .config-section button:hover {
+            background: #dc2626;
+        }
+
+        .warning {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: 10px;
+            font-size: 11px;
+            color: #ef4444;
+        }
+
+        .print-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: #4fb7b3;
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .print-btn:hover {
+            background: #3da09c;
+        }
+
+        @media print {
+            body {
+                background: #fff;
+            }
+
+            .config-section,
+            .print-btn {
+                display: none;
+            }
+
+            .card {
+                border-color: #000;
+            }
+
+            h1,
+            .warning {
+                color: #000;
+            }
+
+            .subtitle,
+            .instructions {
+                color: #333;
+            }
+        }
+    </style>
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+
+<body>
+    <div class="card">
+        <h1>🔴 HONEYPOT ATTACK DEMO</h1>
+        <p class="subtitle">Scan QR Code to Launch Simulated Attacks</p>
+
+        <div class="config-section">
+            <!-- Mode Toggle -->
+            <label>Deployment Mode</label>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button id="localBtn" onclick="setMode('local')"
+                    style="flex:1; background: #333; color: #fff; padding: 10px; border: 1px solid #555; border-radius: 5px; cursor: pointer;">🏠
+                    Local Mode</button>
+                <button id="cloudBtn" onclick="setMode('cloud')"
+                    style="flex:1; background: #4fb7b3; color: #000; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">☁️
+                    Cloud Mode</button>
+            </div>
+
+            <!-- Local Mode Input -->
+            <div id="localConfig" style="display: none;">
+                <label>Your Computer's IP Address</label>
+                <input type="text" id="ipInput" placeholder="192.168.1.100" value="">
+                <button onclick="generateQR()">Generate QR Code</button>
+                <p style="color: #888; font-size: 11px; margin-top: 10px;">⚠️ Phone must be on same WiFi as laptop</p>
+            </div>
+
+            <!-- Cloud Mode - Auto generate -->
+            <div id="cloudConfig">
+                <label>Deployed dashboard URL (serves attacker.html)</label>
+                <input type="text" id="frontendUrl" placeholder="https://your-dashboard.onrender.com"
+                    style="background: #0a0a0f;">
+                <label style="margin-top: 10px; display: block;">Deployed backend URL (Flask honeypot)</label>
+                <input type="text" id="backendUrl" placeholder="https://your-backend.onrender.com"
+                    style="background: #0a0a0f;">
+                <button onclick="generateCloudQR()" style="background: #4fb7b3; color: #000;">Generate Cloud QR
+                    Code</button>
+                <p style="color: #4fb7b3; font-size: 11px; margin-top: 10px;">✅ Works from anywhere - no WiFi required!
+                </p>
+            </div>
+        </div>
+
+        <div id="qrcode"></div>
+
+        <div class="url-display" id="urlDisplay">
+            Click "Generate Cloud QR Code" to create QR
+        </div>
+
+        <div class="instructions">
+            <h3>📋 Instructions:</h3>
+            <b>Cloud Mode:</b> Works from anywhere (phone on any network)<br>
+            <b>Local Mode:</b> Phone must be on same WiFi as laptop<br><br>
+            1. Scan QR code with your phone camera<br>
+            2. Open the link in browser<br>
+            3. Click any attack button<br>
+            4. Watch the dashboard react! 🚨
+        </div>
+
+        <div class="warning">
+            ⚠️ EDUCATIONAL DEMO ONLY - Do not use on unauthorized systems
+        </div>
+
+        <button class="print-btn" onclick="window.print()">🖨️ Print This QR Code</button>
+    </div>
+
+    <script>
+        let qrcode = null;
+        let currentMode = 'cloud';  // Default to cloud mode
+
+        // Deployment URLs are remembered per browser so you only type them once.
+        const trimSlash = (u) => u.trim().replace(/\/+$/, '');
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('localConfig').style.display = mode === 'local' ? 'block' : 'none';
+            document.getElementById('cloudConfig').style.display = mode === 'cloud' ? 'block' : 'none';
+            document.getElementById('localBtn').style.background = mode === 'local' ? '#4fb7b3' : '#333';
+            document.getElementById('localBtn').style.color = mode === 'local' ? '#000' : '#fff';
+            document.getElementById('cloudBtn').style.background = mode === 'cloud' ? '#4fb7b3' : '#333';
+            document.getElementById('cloudBtn').style.color = mode === 'cloud' ? '#000' : '#fff';
+
+            // Auto-generate for cloud mode
+            if (mode === 'cloud') {
+                generateCloudQR();
+            }
+        }
+
+        function generateQR() {
+            const ip = document.getElementById('ipInput').value.trim();
+            if (!ip) {
+                alert('Please enter your IP address');
+                return;
+            }
+
+            // Vite dev server runs on 3000 (see vite.config.ts); the page then
+            // targets http://<ip>:5000 for the Flask backend automatically.
+            createQRCode(`http://${ip}:3000/attacker.html`);
+        }
+
+        function generateCloudQR() {
+            const frontend = trimSlash(document.getElementById('frontendUrl').value);
+            const backend = trimSlash(document.getElementById('backendUrl').value);
+
+            if (!frontend || !backend) {
+                document.getElementById('urlDisplay').textContent =
+                    'Enter both your deployed dashboard and backend URLs above.';
+                return;
+            }
+
+            localStorage.setItem('honeypot.frontendUrl', frontend);
+            localStorage.setItem('honeypot.backendUrl', backend);
+
+            createQRCode(`${frontend}/attacker.html?target=${encodeURIComponent(backend)}`);
+        }
+
+        function createQRCode(url) {
+            // Clear previous QR
+            document.getElementById('qrcode').innerHTML = '';
+
+            // Generate new QR
+            qrcode = new QRCode(document.getElementById('qrcode'), {
+                text: url,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.getElementById('urlDisplay').textContent = url;
+        }
+
+        // Auto-detect IP hint
+        document.getElementById('ipInput').placeholder = 'Enter your IPv4 (run ipconfig / ifconfig)';
+
+        // Restore previously entered deployment URLs
+        document.getElementById('frontendUrl').value = localStorage.getItem('honeypot.frontendUrl') || '';
+        document.getElementById('backendUrl').value = localStorage.getItem('honeypot.backendUrl') || '';
+
+        // Initialize with cloud mode
+        setMode('cloud');
+    </script>
+</body>
+
+</html>

