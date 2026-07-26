@@ -53,8 +53,8 @@ This project builds that idea end to end:
 2. **Capture** — every hit is written to the database with source IP, method,
    endpoint, raw payload, user-agent and timestamp.
 3. **Classify** — the payload goes through a TF-IDF + Random Forest classifier,
-   with a regex rule engine as a second layer for the categories the model
-   wasn't trained on.
+   fronted and backed by a regex rule engine that covers the categories the
+   model was never trained on.
 4. **Enrich** — the source IP is resolved to country, city and coordinates via
    MaxMind GeoLite2.
 5. **Stream** — the enriched record is pushed to every connected dashboard over
@@ -68,7 +68,7 @@ This project builds that idea end to end:
 **Detection**
 - 15 honeypot trap endpoints covering login, admin, config-file and
   upload-probe attack surfaces
-- Two-stage classification: ML model first, regex rule engine as fallback
+- Three-tier classification: high-precision rules, ML model, regex safety net
 - 10 distinct attack categories with critical/high/medium/low severity mapping
 - IP geolocation with graceful degradation when the GeoIP database is absent
 
@@ -113,12 +113,11 @@ This project builds that idea end to end:
   │            │                                                   │
   │            ▼                                                   │
   │   models/ml_model.py                                           │
-  │     TF-IDF ─► RandomForest ─► label                            │
-  │            │        (falls through on low signal)              │
-  │            ▼                                                   │
-  │     regex rule engine ─► label                                 │
+  │     tier 1  high-precision rules (model's blind spots)         │
+  │     tier 2  TF-IDF ─► RandomForest  (its 5 trained classes)    │
+  │     tier 3  full regex rule set     (safety net)               │
   │            │                                                   │
-  │            ▼                                                   │
+  │            ▼  label + severity                                 │
   │   utils/geoip.py         models/log_entry.py    utils/sse.py   │
   │     IP → lat/lon    ──►    persist row      ──►  fan-out       │
   └────────────────────────────────────────────────────────────────┘
@@ -155,29 +154,42 @@ process memory.
 
 ## Attack taxonomy
 
-The system recognises 10 categories. Five are handled by the trained model;
-the rest are caught by the regex layer, which also acts as a safety net when
-the model is unavailable or unsure.
+The system recognises 10 categories. Five are handled by the trained model; the
+rest by hand-written rules that run *ahead* of it, for the reason explained
+below.
 
 | Category | Severity | Detected by | Example payload |
 |---|---|---|---|
-| SQL Injection | Critical | Model + regex | `' OR '1'='1` |
-| Command Injection | Critical | Model + regex | `; cat /etc/passwd` |
-| SSRF | Critical | Model + regex | `http://169.254.169.254/latest/meta-data/` |
-| LDAP Injection | Critical | Regex | `*)(uid=*))(\|(uid=*` |
-| XSS | High | Model + regex | `<script>alert(1)</script>` |
-| Directory Traversal | High | Regex | `../../../../etc/passwd` |
-| File Upload Attack | High | Regex | `shell.php` |
-| Brute Force | Medium | Regex | repeated `admin` / `password123` |
-| Suspicious Activity | Medium | Model (default class) | anything unmatched but non-empty |
-| Reconnaissance | Low | Heuristic | endpoint probe with no payload |
+| SQL Injection | Critical | Model (tier 2) | `' OR '1'='1` |
+| Command Injection | Critical | Model (tier 2) | `; cat /etc/passwd` |
+| SSRF | Critical | Model (tier 2) | `http://169.254.169.254/latest/meta-data/` |
+| LDAP Injection | Critical | Regex (tier 1) | `*)(uid=*))(\|(uid=*` |
+| XSS | High | Model (tier 2) | `<script>alert(1)</script>` |
+| Directory Traversal | High | Regex (tier 1) | `../../../../etc/passwd` |
+| File Upload Attack | High | Regex (tier 1) | `shell.php` |
+| Brute Force | Medium | Regex (tier 1) | `admin` / `password123` |
+| Suspicious Activity | Medium | Model default class | unmatched but non-empty |
+| Reconnaissance | Low | Heuristic | trap probed with no attack payload |
 
-Classification order lives in
-[`backend/models/ml_model.py`](backend/models/ml_model.py): the model is asked
-first, and its answer is used unless it returns nothing usable, at which point
-the regex engine runs. Adding a category means adding labelled rows to the
-training CSV *and* a pattern block — the two layers are intentionally
-independent so one can cover the other's gaps.
+Classification runs in three tiers, in
+[`backend/models/ml_model.py`](backend/models/ml_model.py):
+
+1. **High-precision rules for the model's blind spots.** The training set has
+   no label for Directory Traversal, File Upload, LDAP Injection or Brute
+   Force, so for those payloads the model can only ever guess wrong — it has no
+   class for the right answer. These are matched first.
+2. **The model**, for the five categories it was actually trained on.
+3. **The full rule set**, as a safety net when the model is missing, fails to
+   unpickle, or returns nothing usable.
+
+Tier 1 exists because ordering it the other way round is a silent trap: the
+model returns a confident label for *every* input, so putting it first means it
+short-circuits the regex layer and the other five categories become
+unreachable in practice. Anything promoted to tier 1 has to be high precision,
+since it overrides the model — which is why only the unambiguous
+credential-stuffing literals are trusted there, and the broad "admin near
+password" rule stays in tier 3 where it can't swallow SQL injection submitted
+through the same login form.
 
 ---
 
@@ -265,7 +277,7 @@ payloads as a smoke test.
     │   └── reports.py          PDF export
     ├── models/
     │   ├── log_entry.py        AttackLog SQLAlchemy model
-    │   ├── ml_model.py         Two-stage classifier
+    │   ├── ml_model.py         Three-tier classifier
     │   └── *.pkl               Trained model + vectorizer
     ├── utils/
     │   ├── geoip.py            MaxMind lookup with fallbacks
@@ -481,8 +493,10 @@ Being upfront about what this is and isn't:
   on restart. Real enforcement would need a firewall integration.
 - **Email alerts are simulated.** The configuration and history endpoints work,
   but no SMTP client is wired in yet.
-- **The model covers five of the ten categories.** The rest rely entirely on the
-  regex layer. Expanding the labelled dataset is the natural next step.
+- **The model covers five of the ten categories.** The other five rely entirely
+  on hand-written rules, which generalise to novel payloads far worse than a
+  trained classifier would. Labelling those categories and retraining is the
+  single highest-value next step.
 - **499 training samples is small.** The 9.24% standard deviation across
   cross-validation folds reflects that — the headline accuracy is real, but the
   confidence interval around it is wide.
