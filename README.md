@@ -50,17 +50,20 @@ Attackers think they found something. What they actually found is a sensor.
 ## Screenshots
 
 **Live threat feed** — every card is a real request that hit a trap endpoint,
-with the classified attack type, source IP, geolocation and model confidence.
+labelled with the classified attack type, source IP, location and model
+confidence. The panel top-right is the SSE alert, pushed the instant a trap
+fires.
 
 ![Threat feed](docs/screenshots/02-threat-feed.jpg)
 
-**Analytics** — attack volume over 24 hours, distribution by vector and by
-country, severity breakdown, and a top-attacker leaderboard. Exports to PDF.
+**Analytics** — attack volume over 24 hours, distribution by vector, top
+attacking countries, a per-IP leaderboard and the severity split. Exports to
+PDF. Here across 23 captured attacks spanning five classes.
 
 ![Analytics dashboard](docs/screenshots/03-analytics.jpg)
 
 **Attack origins** — each detection geolocated from its source IP and plotted
-by severity.
+by severity: green low through red critical.
 
 ![Attack origin map](docs/screenshots/04-attack-map.jpg)
 
@@ -68,6 +71,12 @@ by severity.
 `UNDER ATTACK` the moment a trap fires.
 
 ![Node status](docs/screenshots/05-nodes.jpg)
+
+**Attack simulator** — generates a QR code pointing a phone at the deployed
+honeypot, so the whole pipeline can be demonstrated live from any device with
+no tooling installed on it.
+
+![QR code attack demo](docs/screenshots/06-qr-demo.jpg)
 
 ---
 
