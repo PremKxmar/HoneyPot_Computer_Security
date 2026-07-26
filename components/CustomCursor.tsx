@@ -24,11 +24,10 @@ const CustomCursor: React.FC = () => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
 
+      // One combined selector instead of three separate closest() walks up
+      // the tree, on an event that fires at pointer rate.
       const target = e.target as HTMLElement;
-      const clickable = target.closest('button') || 
-                        target.closest('a') || 
-                        target.closest('[data-hover="true"]');
-      setIsHovering(!!clickable);
+      setIsHovering(!!target.closest('button, a, [data-hover="true"]'));
     };
 
     window.addEventListener('mousemove', updateMousePosition, { passive: true });
@@ -36,14 +35,18 @@ const CustomCursor: React.FC = () => {
   }, [mouseX, mouseY]);
 
   return (
+    /* No mix-blend-difference here: a blended element forces the browser to
+       composite everything beneath it as a group and re-blend on each move.
+       The cursor sits above a dark page, so a plain light disc reads the same
+       at a fraction of the cost. */
     <motion.div
-      className="fixed top-0 left-0 z-[9999] pointer-events-none mix-blend-difference flex items-center justify-center hidden md:flex will-change-transform"
+      className="fixed top-0 left-0 z-[9999] pointer-events-none flex items-center justify-center hidden md:flex will-change-transform"
       style={{ x, y, translateX: '-50%', translateY: '-50%' }}
     >
       {/* This div is the actual cursor "body" and will handle the scaling and text centering */}
       {/* Changed base size to 80px diameter (40px radius) */}
       <motion.div
-        className="relative rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.3)] flex items-center justify-center"
+        className="relative rounded-full bg-white/90 shadow-[0_0_10px_rgba(255,255,255,0.3)] flex items-center justify-center"
         style={{ width: 80, height: 80 }}
         animate={{
           // Scaled by 1.5 to become 120px diameter (60px radius) when hovering

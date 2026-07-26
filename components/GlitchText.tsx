@@ -5,7 +5,6 @@
 
 
 import React from 'react';
-import { motion } from 'framer-motion';
 
 interface GradientTextProps {
   text: string;
@@ -18,26 +17,22 @@ const GradientText: React.FC<GradientTextProps> = ({ text, as: Component = 'span
   return (
     <Component className={`relative inline-block font-black tracking-tighter isolate ${className}`}>
       {/* Main Gradient Text */}
-      <motion.span
-        className="absolute inset-0 z-10 block bg-gradient-to-r from-white via-[#a8fbd3] via-[#4fb7b3] via-[#637ab9] to-white bg-[length:200%_auto] bg-clip-text text-transparent will-change-[background-position]"
-        animate={{
-          backgroundPosition: ['0% center', '200% center'],
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "linear",
-        }}
+      {/* Panned with a CSS keyframe rather than Framer. background-position is
+          not a compositable property -- it repaints the element every frame --
+          so on hero-sized text this was one of the more expensive things on
+          the page. Keeping it in CSS at least takes the per-frame style writes
+          off the main thread and lets it stop when scrolled out of view. */}
+      <span
+        className="absolute inset-0 z-10 block bg-gradient-to-r from-white via-[#a8fbd3] via-[#4fb7b3] via-[#637ab9] to-white bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient-pan"
         aria-hidden="true"
-        style={{ 
+        style={{
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          transform: 'translateZ(0)',
           backfaceVisibility: 'hidden'
         }}
       >
         {text}
-      </motion.span>
+      </span>
       
       {/* Base layer for solid white fallback */}
       <span 

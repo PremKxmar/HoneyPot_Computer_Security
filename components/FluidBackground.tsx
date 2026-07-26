@@ -5,7 +5,22 @@
 
 
 import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
+
+/**
+ * Ambient background.
+ *
+ * Two deliberate choices here, both for scroll performance:
+ *
+ * The glow is drawn with radial gradients rather than blurred, screen-blended
+ * divs. A `filter: blur(40px)` on a 90vw element forces the compositor to
+ * re-blur a ~1700px layer every frame, and `mix-blend-screen` makes it read
+ * back everything underneath. Radial gradients are soft by construction.
+ *
+ * The motion is CSS keyframes rather than Framer Motion. Framer animates from
+ * JavaScript, writing inline styles every frame on the main thread -- the same
+ * thread that handles scrolling. Keyframed transforms run on the compositor.
+ * See index.css for the keyframes.
+ */
 
 const StarField = () => {
   const stars = useMemo(() => {
@@ -14,68 +29,32 @@ const StarField = () => {
       size: Math.random() * 2 + 1,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      duration: Math.random() * 3 + 2,
+      duration: Math.random() * 6 + 4,
       delay: Math.random() * 2,
-      opacity: Math.random() * 0.7 + 0.3
+      opacity: Math.random() * 0.7 + 0.3,
     }));
   }, []);
 
   return (
     <div className="absolute inset-0 z-0 pointer-events-none">
       {stars.map((star) => (
-        <motion.div
+        <div
           key={star.id}
-          className="absolute rounded-full bg-white"
+          className="absolute rounded-full bg-white animate-twinkle"
           style={{
             left: `${star.x}%`,
             top: `${star.y}%`,
             width: star.size,
             height: star.size,
-          }}
-          initial={{ opacity: star.opacity }}
-          animate={{ opacity: [star.opacity, 1, star.opacity] }}
-          transition={{
-            duration: star.duration * 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: star.delay,
-          }}
+            '--star-opacity': star.opacity,
+            '--star-duration': `${star.duration}s`,
+            '--star-delay': `${star.delay}s`,
+          } as React.CSSProperties}
         />
       ))}
     </div>
   );
 };
-
-/**
- * Ambient background.
- *
- * The glow is drawn with radial gradients rather than blurred, screen-blended
- * divs. A `filter: blur(40px)` on a 90vw element forces the compositor to
- * re-blur a ~1700px layer every frame, and `mix-blend-screen` makes it read
- * back everything underneath -- with three of them animating on an infinite
- * loop, nothing downstream can ever cache, which is what dragged scrolling to
- * ~10fps. Radial gradients are soft by construction and cost nothing to paint.
- *
- * Motion is kept, but only as `transform` on unblurred, unblended layers,
- * which the GPU handles without repainting.
- */
-const Blob: React.FC<{
-  className: string;
-  color: string;
-  animate: { x: number[]; y: number[] };
-  duration: number;
-  ease?: string;
-}> = ({ className, color, animate, duration, ease = "easeInOut" }) => (
-  <motion.div
-    className={`absolute rounded-full will-change-transform ${className}`}
-    style={{
-      background: `radial-gradient(circle closest-side, ${color}, transparent)`,
-      transform: 'translateZ(0)',
-    }}
-    animate={animate}
-    transition={{ duration, repeat: Infinity, ease }}
-  />
-);
 
 const FluidBackground: React.FC = () => {
   return (
@@ -83,26 +62,19 @@ const FluidBackground: React.FC = () => {
 
       <StarField />
 
-      <Blob
-        className="top-[-10%] left-[-10%] w-[90vw] h-[90vw]"
-        color="rgba(168, 251, 211, 0.30)"
-        animate={{ x: [0, 50, -25, 0], y: [0, -25, 25, 0] }}
-        duration={25}
-        ease="linear"
+      <div
+        className="absolute top-[-10%] left-[-10%] w-[90vw] h-[90vw] rounded-full animate-drift-a will-change-transform"
+        style={{ background: 'radial-gradient(circle closest-side, rgba(168, 251, 211, 0.30), transparent)' }}
       />
 
-      <Blob
-        className="top-[20%] right-[-20%] w-[100vw] h-[80vw]"
-        color="rgba(79, 183, 179, 0.22)"
-        animate={{ x: [0, -50, 25, 0], y: [0, 50, -25, 0] }}
-        duration={30}
+      <div
+        className="absolute top-[20%] right-[-20%] w-[100vw] h-[80vw] rounded-full animate-drift-b will-change-transform"
+        style={{ background: 'radial-gradient(circle closest-side, rgba(79, 183, 179, 0.22), transparent)' }}
       />
 
-      <Blob
-        className="bottom-[-20%] left-[20%] w-[80vw] h-[80vw]"
-        color="rgba(99, 122, 185, 0.22)"
-        animate={{ x: [0, 75, -75, 0], y: [0, -50, 50, 0] }}
-        duration={35}
+      <div
+        className="absolute bottom-[-20%] left-[20%] w-[80vw] h-[80vw] rounded-full animate-drift-c will-change-transform"
+        style={{ background: 'radial-gradient(circle closest-side, rgba(99, 122, 185, 0.22), transparent)' }}
       />
     </div>
   );

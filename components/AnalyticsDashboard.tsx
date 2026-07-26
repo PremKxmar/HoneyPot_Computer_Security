@@ -147,7 +147,7 @@ const AnalyticsDashboard: React.FC = () => {
                                     contentStyle={{ backgroundColor: '#000', border: '1px solid #333', borderRadius: '8px' }}
                                     itemStyle={{ color: '#fff', fontFamily: 'monospace' }}
                                 />
-                                <Area type="monotone" dataKey="count" stroke="#ef4444" fillOpacity={1} fill="url(#colorCount)" />
+                                <Area isAnimationActive={false} type="monotone" dataKey="count" stroke="#ef4444" fillOpacity={1} fill="url(#colorCount)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -161,7 +161,7 @@ const AnalyticsDashboard: React.FC = () => {
                     <div className="h-[300px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
-                                <Pie
+                                <Pie isAnimationActive={false}
                                     data={typeData}
                                     cx="50%"
                                     cy="50%"
@@ -201,7 +201,7 @@ const AnalyticsDashboard: React.FC = () => {
                                     contentStyle={{ backgroundColor: '#000', border: '1px solid #333', borderRadius: '8px' }}
                                     itemStyle={{ color: '#fff', fontFamily: 'monospace' }}
                                 />
-                                <Bar dataKey="value" fill="#4fb7b3" radius={[0, 4, 4, 0]} barSize={20} />
+                                <Bar isAnimationActive={false} dataKey="value" fill="#4fb7b3" radius={[0, 4, 4, 0]} barSize={20} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>

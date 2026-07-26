@@ -13,6 +13,7 @@ import CustomCursor from './components/CustomCursor';
 import ThreatCard from './components/ArtistCard'; // Reused component structure
 import AIChat from './components/AIChat';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
+import DeferredSection from './components/DeferredSection';
 import WorldMap from './components/WorldMap';
 import AuthPage from './components/AuthPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -425,15 +426,10 @@ const Dashboard: React.FC = () => {
               className="text-[14vw] md:text-[13vw] leading-[0.9] font-black tracking-tighter text-center"
             />
             {/* Radar Animation */}
-            <motion.div
-              className="absolute -z-20 w-[40vw] h-[40vw] border border-[#4fb7b3]/30 rounded-full pointer-events-none"
-              animate={{ scale: [0.5, 1.5], opacity: [0.5, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.div
-              className="absolute -z-20 w-[40vw] h-[40vw] border border-[#a8fbd3]/20 rounded-full pointer-events-none"
-              animate={{ scale: [0.5, 1.5], opacity: [0.5, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear", delay: 2 }}
+            <div className="absolute -z-20 w-[40vw] h-[40vw] border border-[#4fb7b3]/30 rounded-full pointer-events-none animate-radar will-change-transform" />
+            <div
+              className="absolute -z-20 w-[40vw] h-[40vw] border border-[#a8fbd3]/20 rounded-full pointer-events-none animate-radar will-change-transform"
+              style={{ animationDelay: '2s' }}
             />
           </div>
 
@@ -456,11 +452,7 @@ const Dashboard: React.FC = () => {
 
         {/* MARQUEE */}
         <div className="absolute bottom-12 md:bottom-16 left-0 w-full py-4 md:py-6 bg-black text-white z-20 overflow-hidden border-y border-white/20">
-          <motion.div
-            className="flex w-fit will-change-transform"
-            animate={{ x: "-50%" }}
-            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-          >
+          <div className="flex w-fit will-change-transform animate-marquee">
             {[0, 1].map((key) => (
               <div key={key} className="flex whitespace-nowrap shrink-0">
                 {[...Array(4)].map((_, i) => (
@@ -472,7 +464,7 @@ const Dashboard: React.FC = () => {
                 ))}
               </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </header>
 
@@ -563,7 +555,15 @@ const Dashboard: React.FC = () => {
 
         <div className="max-w-7xl mx-auto px-4 md:px-6 relative">
           <div className="relative">
-            <AnalyticsDashboard />
+            <DeferredSection
+              fallback={
+                <div className="w-full h-64 flex items-center justify-center text-white/50 font-mono">
+                  INITIALIZING ANALYTICS MODULE...
+                </div>
+              }
+            >
+              <AnalyticsDashboard />
+            </DeferredSection>
           </div>
         </div>
       </section>
@@ -656,7 +656,15 @@ const Dashboard: React.FC = () => {
           <h2 className="text-3xl md:text-4xl font-heading font-bold mb-8">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4fb7b3] to-[#a8fbd3]">Attack</span> Origins
           </h2>
-          <WorldMap className="h-[400px]" />
+          <DeferredSection
+            fallback={
+              <div className="h-[400px] flex items-center justify-center bg-black/40 rounded-xl border border-white/10 text-white/50 font-mono text-sm">
+                LOADING ATTACK MAP...
+              </div>
+            }
+          >
+            <WorldMap className="h-[400px]" />
+          </DeferredSection>
         </div>
       </section>
 
