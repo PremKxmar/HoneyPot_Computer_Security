@@ -296,8 +296,8 @@ payloads as a smoke test.
 ### 1. Clone
 
 ```bash
-git clone https://github.com/PremKxmar/Honeypot-in-a-Box-Computer-Security.git
-cd Honeypot-in-a-Box-Computer-Security
+git clone https://github.com/PremKxmar/HoneyPot_Computer_Security.git
+cd HoneyPot_Computer_Security
 ```
 
 ### 2. Backend
