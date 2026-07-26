@@ -35,6 +35,22 @@ export default defineConfig(({ mode }) => {
       // Backend base URL baked in at build time; empty means "use the dev proxy".
       'process.env.BACKEND_URL': JSON.stringify(env.BACKEND_URL || '')
     },
+    build: {
+      rollupOptions: {
+        output: {
+          // Split the heavy, rarely-changing libraries out of the app bundle so
+          // they download in parallel and stay cached across deploys.
+          // React itself is left in the entry chunk: every other vendor
+          // depends on it, so splitting it out just produces an empty file.
+          manualChunks: {
+            charts: ['recharts'],
+            map: ['leaflet', 'react-leaflet'],
+            motion: ['framer-motion'],
+            ai: ['@google/genai'],
+          },
+        },
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

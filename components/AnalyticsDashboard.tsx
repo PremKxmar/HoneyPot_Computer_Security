@@ -115,7 +115,7 @@ const AnalyticsDashboard: React.FC = () => {
 
             {/* Stats Summary */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white/5 p-6 rounded-xl border border-white/10 backdrop-blur-sm">
+                <div className="bg-white/10 p-6 rounded-xl border border-white/10">
                     <div className="flex items-center gap-4 mb-2">
                         <Shield className="text-[#4fb7b3]" />
                         <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Total Intrusions</h3>
@@ -127,7 +127,7 @@ const AnalyticsDashboard: React.FC = () => {
             {/* Charts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Attacks Over Time */}
-                <div className="bg-black/40 p-6 rounded-xl border border-white/10 backdrop-blur-sm">
+                <div className="bg-black/60 p-6 rounded-xl border border-white/10">
                     <h3 className="text-xl font-heading font-bold mb-6 flex items-center gap-2">
                         <Activity className="text-red-500" /> Attack Volume (24h)
                     </h3>
@@ -154,7 +154,7 @@ const AnalyticsDashboard: React.FC = () => {
                 </div>
 
                 {/* Attack Types */}
-                <div className="bg-black/40 p-6 rounded-xl border border-white/10 backdrop-blur-sm">
+                <div className="bg-black/60 p-6 rounded-xl border border-white/10">
                     <h3 className="text-xl font-heading font-bold mb-6 flex items-center gap-2">
                         <Shield className="text-orange-500" /> Attack Vectors
                     </h3>
@@ -186,7 +186,7 @@ const AnalyticsDashboard: React.FC = () => {
                 </div>
 
                 {/* Top Countries */}
-                <div className="bg-black/40 p-6 rounded-xl border border-white/10 lg:col-span-2 backdrop-blur-sm">
+                <div className="bg-black/60 p-6 rounded-xl border border-white/10 lg:col-span-2">
                     <h3 className="text-xl font-heading font-bold mb-6 flex items-center gap-2">
                         <Globe className="text-blue-500" /> Top Attacking Countries
                     </h3>
@@ -208,7 +208,7 @@ const AnalyticsDashboard: React.FC = () => {
                 </div>
 
                 {/* Top Attackers Leaderboard */}
-                <div className="bg-black/40 p-6 rounded-xl border border-white/10 backdrop-blur-sm">
+                <div className="bg-black/60 p-6 rounded-xl border border-white/10">
                     <h3 className="text-xl font-heading font-bold mb-6 flex items-center gap-2">
                         <Trophy className="text-yellow-500" /> Top Attackers
                     </h3>
@@ -243,7 +243,7 @@ const AnalyticsDashboard: React.FC = () => {
                 </div>
 
                 {/* Severity Distribution */}
-                <div className="bg-black/40 p-6 rounded-xl border border-white/10 backdrop-blur-sm">
+                <div className="bg-black/60 p-6 rounded-xl border border-white/10">
                     <h3 className="text-xl font-heading font-bold mb-6 flex items-center gap-2">
                         <AlertTriangle className="text-red-500" /> Threat Severity
                     </h3>

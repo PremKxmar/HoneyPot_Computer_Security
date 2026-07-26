@@ -162,14 +162,18 @@ const Dashboard: React.FC = () => {
               } catch (e) { }
 
               // Update node under attack status
-              setNodes((prevNodes) => {
-                const updated = [...prevNodes];
-                updated[0].status = 'under_attack';
-                updated[0].requests += 1;
-                return updated;
-              });
+              setNodes((prevNodes) => prevNodes.map((node, i) =>
+                i === 0
+                  ? { ...node, status: 'under_attack', requests: node.requests + 1 }
+                  : node
+              ));
             }
-            return threats;
+
+            // The poll fires every 5s whether or not anything changed. Returning
+            // a fresh array regardless would re-render every threat card on each
+            // tick, so bail out when the result is identical.
+            const unchanged = newThreats.length === 0 && prev.length === threats.length;
+            return unchanged ? prev : threats;
           });
           setIsBackendConnected(true);
         }
@@ -538,9 +542,9 @@ const Dashboard: React.FC = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-white/10 bg-black/20 backdrop-blur-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-white/10 bg-black/40">
             {filteredThreats.slice(0, 6).map((threat) => (
-              <ThreatCard key={threat.id} threat={threat} onClick={() => setSelectedThreat(threat)} />
+              <ThreatCard key={threat.id} threat={threat} onSelect={setSelectedThreat} />
             ))}
             {filteredThreats.length === 0 && (
               <div className="col-span-3 py-20 text-center text-gray-500 font-mono">
@@ -553,7 +557,7 @@ const Dashboard: React.FC = () => {
       </section>
 
       {/* ANALYTICS / EXPERIENCE SECTION */}
-      <section id="analytics" className="relative z-10 py-20 md:py-32 bg-black/20 backdrop-blur-sm border-t border-white/10 overflow-hidden">
+      <section id="analytics" className="relative z-10 py-20 md:py-32 bg-black/40 border-t border-white/10 overflow-hidden">
         {/* Decorative blurred circle */}
         <div className="absolute top-1/2 right-[-20%] w-[50vw] h-[50vw] bg-red-900/20 rounded-full blur-[40px] pointer-events-none" />
 
@@ -565,7 +569,7 @@ const Dashboard: React.FC = () => {
       </section>
 
       {/* NODES / TICKETS SECTION */}
-      <section id="nodes" className="relative z-10 py-20 md:py-32 px-4 md:px-6 bg-black/30 backdrop-blur-lg">
+      <section id="nodes" className="relative z-10 py-20 md:py-32 px-4 md:px-6 bg-black/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 md:mb-20">
             <h2 className="text-5xl md:text-9xl font-heading font-bold opacity-20 text-white">
@@ -585,7 +589,7 @@ const Dashboard: React.FC = () => {
                 <motion.div
                   key={node.id}
                   whileHover={{ y: -10 }}
-                  className={`relative p-8 md:p-10 border backdrop-blur-md flex flex-col min-h-[400px] transition-all duration-300 ${isUnderAttack ? 'border-red-500/50 bg-red-900/10' : 'border-white/10 bg-white/5'
+                  className={`relative p-8 md:p-10 border flex flex-col min-h-[400px] transition-all duration-300 ${isUnderAttack ? 'border-red-500/50 bg-red-900/20' : 'border-white/10 bg-white/10'
                     }`}
                   data-hover="true"
                 >
@@ -656,7 +660,7 @@ const Dashboard: React.FC = () => {
         </div>
       </section>
 
-      <footer className="relative z-10 border-t border-white/10 py-12 md:py-16 bg-black/80 backdrop-blur-xl">
+      <footer className="relative z-10 border-t border-white/10 py-12 md:py-16 bg-black/90">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
           <div>
             <div className="font-heading text-3xl md:text-4xl font-bold tracking-tighter mb-4 text-white">HONEYPOT SEC</div>
