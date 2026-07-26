@@ -14,18 +14,28 @@ Attackers think they found something. What they actually found is a sensor.
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.8-F7931E?logo=scikitlearn&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-<!-- Live demo: add your deployed dashboard URL here once you've run the deploy steps below. -->
+**[Live dashboard →](https://honeypot-dashboard-qmo1.onrender.com)**
+&nbsp;·&nbsp;
+[Backend API →](https://honeypot-backend-etuv.onrender.com)
+
+> Both run on Render's free tier and sleep when idle, so the first request after
+> a quiet spell takes ~50 seconds to cold-start. Load the backend link first,
+> then the dashboard.
+
+![Honeypot dashboard](docs/screenshots/01-hero.jpg)
 
 ---
 
 ## Table of Contents
 
+- [Screenshots](#screenshots)
 - [Why this exists](#why-this-exists)
 - [Features](#features)
 - [Architecture](#architecture)
 - [Tech stack](#tech-stack)
 - [Attack taxonomy](#attack-taxonomy)
 - [The classifier](#the-classifier)
+- [Performance](#performance)
 - [Project structure](#project-structure)
 - [Getting started](#getting-started)
 - [Running the live attack demo](#running-the-live-attack-demo)
@@ -34,6 +44,30 @@ Attackers think they found something. What they actually found is a sensor.
 - [Known limitations](#known-limitations)
 - [Security notice](#security-notice)
 - [License](#license)
+
+---
+
+## Screenshots
+
+**Live threat feed** — every card is a real request that hit a trap endpoint,
+with the classified attack type, source IP, geolocation and model confidence.
+
+![Threat feed](docs/screenshots/02-threat-feed.jpg)
+
+**Analytics** — attack volume over 24 hours, distribution by vector and by
+country, severity breakdown, and a top-attacker leaderboard. Exports to PDF.
+
+![Analytics dashboard](docs/screenshots/03-analytics.jpg)
+
+**Attack origins** — each detection geolocated from its source IP and plotted
+by severity.
+
+![Attack origin map](docs/screenshots/04-attack-map.jpg)
+
+**Node control** — per-node status, uptime and request volume, flipping to
+`UNDER ATTACK` the moment a trap fires.
+
+![Node status](docs/screenshots/05-nodes.jpg)
 
 ---
 
@@ -139,7 +173,7 @@ process memory.
 | Layer | Choice | Why |
 |---|---|---|
 | Frontend | React 19 + TypeScript + Vite | Fast HMR, typed API surface |
-| Styling | Tailwind (CDN) + Framer Motion | Rapid iteration, animation without a CSS pipeline |
+| Styling | Tailwind (PostCSS build) + Framer Motion | Utility CSS compiled ahead of time; JS animation reserved for interaction, keyframes for ambient loops |
 | Charts | Recharts | Declarative, composes cleanly with React |
 | Map | Leaflet + react-leaflet | Open tiles, no API key needed |
 | Backend | Flask 3 + Flask-SQLAlchemy | Small surface, blueprints keep routes separable |
@@ -241,14 +275,58 @@ payloads as a smoke test.
 
 ---
 
+## Performance
+
+The dashboard is animation-heavy, and the first deployed build scrolled at
+10–15fps. Profiling turned up four compounding causes, all of them worth
+recording because none were obvious from reading the code:
+
+**Tailwind was loaded from the CDN.** `cdn.tailwindcss.com` ships a JIT
+compiler that watches the DOM with a `MutationObserver` and regenerates CSS as
+classes appear. Framer Motion rewrites inline styles every frame, so that
+observer was recompiling continuously. Tailwind now builds through PostCSS at
+compile time.
+
+**Animation ran on the main thread.** Framer Motion drives animation from
+JavaScript — it writes inline styles each frame via `requestAnimationFrame`, on
+the same thread that handles scrolling. About twenty elements were looping
+forever, so scroll and animation competed for that thread the entire time the
+page was open. The ambient background, starfield, marquee, radar rings and the
+hero gradient are now CSS keyframes, which the compositor runs independently.
+The hero mattered most: it animated `background-position`, which is not a
+compositable property, so it repainted `14vw` glyph-clipped text every frame.
+
+**Blur and blend modes stacked.** Three background blobs at 80–100vw carried
+`filter: blur(40px)` with `mix-blend-screen`, and roughly twenty `backdrop-blur`
+panels sat on top of them. Because the background never stopped moving, none of
+those panels could ever cache their backdrop. The glow is now radial gradients —
+soft by construction, free to paint — and `backdrop-blur` is reserved for the
+fixed nav and for overlays that only exist while open.
+
+**Offscreen work was not deferred.** Six Recharts SVGs and a Leaflet map with up
+to a hundred markers mounted on first paint despite sitting well below the fold,
+so they were laid out and composited during every scroll above them. Both now
+mount through an `IntersectionObserver` once scrolled near, behind placeholders
+that reserve their height.
+
+Alongside that: threat cards get `content-visibility: auto` so offscreen ones
+skip layout entirely, images are lazy and async-decoded, the 5-second poll no
+longer replaces the threat array when nothing changed, and the bundle is split
+into vendor chunks (950 kB single file → 261 kB entry plus cacheable chunks).
+Looping animations respect `prefers-reduced-motion`.
+
+---
+
 ## Project structure
 
 ```
 .
 ├── App.tsx                     Dashboard shell: feed, search, alerts, routing
 ├── index.tsx / index.html      Vite entry point
+├── index.css                   Tailwind directives + compositor-run keyframes
 ├── types.ts                    Shared Threat / NodeStatus types
-├── vite.config.ts              Dev proxy to :5000, build-time env injection
+├── vite.config.ts              Dev proxy, env injection, vendor chunking
+├── tailwind.config.js          Content globs + font families
 │
 ├── components/
 │   ├── AnalyticsDashboard.tsx  Charts, leaderboard, PDF export
@@ -256,6 +334,7 @@ payloads as a smoke test.
 │   ├── AuthPage.tsx            Signup / login
 │   ├── AIChat.tsx              Gemini-backed security assistant
 │   ├── ArtistCard.tsx          Threat card
+│   ├── DeferredSection.tsx     Mounts children when scrolled into view
 │   └── FluidBackground.tsx · GlitchText.tsx · CustomCursor.tsx
 │
 ├── contexts/AuthContext.tsx    JWT storage, inactivity timeout
@@ -286,6 +365,10 @@ payloads as a smoke test.
     ├── scripts/                train / evaluate / benchmark / convert dataset
     └── data/                   Training CSV, payload corpus, GeoIP database
 ```
+
+`docs/` holds the screenshots above and a standalone HTML write-up of the
+project. `render.yaml`, `vercel.json` and `backend/Procfile` are deployment
+manifests for Render, Vercel and Railway respectively.
 
 ---
 
@@ -442,22 +525,41 @@ Every one of these logs the request and returns a deliberately misleading respon
 
 The frontend and backend deploy as two separate services.
 
-### Render (both services, one file)
+### Render — how the live demo is hosted
 
-[`render.yaml`](render.yaml) is a Render Blueprint. In the Render dashboard
-choose **New → Blueprint**, point it at your fork, and it provisions:
+Two services. [`render.yaml`](render.yaml) describes both as a Blueprint, though
+Blueprints require a payment method on file; creating the services by hand from
+the dashboard works on the free tier and takes about five minutes.
 
-- `honeypot-backend` — Python web service running gunicorn, `SECRET_KEY`
-  auto-generated
-- `honeypot-dashboard` — static site built with `npm run build`
+**Backend** — New → Web Service, runtime Python 3:
 
-After the first deploy, set `BACKEND_URL` on the dashboard service to the
-backend's public URL and trigger a rebuild. That value is baked in at build
-time by `vite.config.ts`, so it needs a rebuild rather than just a restart.
+| Setting | Value |
+|---|---|
+| Root Directory | `backend` |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120` |
+| Env | `SECRET_KEY` (generated), `PYTHON_VERSION=3.11.9` |
 
-> The backend runs on a single worker by design — the SSE listener registry is
-> in-process. On Render's free tier the service also sleeps after inactivity, so
-> the first request after idling takes roughly 50 seconds to cold-start.
+The root directory has to be `backend`, since the app imports as
+`from models.log_entry import db`. Keep `--workers 1`: the SSE listener registry
+lives in process memory, so a second worker would strand dashboards connected to
+the other one.
+
+**Frontend** — New → Static Site:
+
+| Setting | Value |
+|---|---|
+| Build Command | `npm ci && npm run build` |
+| Publish Directory | `dist` |
+| Env | `BACKEND_URL` = the backend's URL, optional `GEMINI_API_KEY` |
+| Rewrite | `/*` → `/index.html` |
+
+Set `BACKEND_URL` *before* the first build — Vite bakes it in at build time, so
+adding it later needs **Clear build cache & deploy**, not a restart. The rewrite
+rule is what keeps `/attacker.html` and page refreshes from 404ing.
+
+> On the free tier both services sleep after ~15 minutes idle, so the first
+> request back takes roughly 50 seconds. Worth warming both URLs before a demo.
 
 ### Vercel (frontend only)
 
