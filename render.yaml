@@ -6,7 +6,7 @@ services:
     runtime: python
     plan: free
     rootDir: backend
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && bash scripts/fetch_geoip.sh
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120
     healthCheckPath: /
     envVars:
@@ -14,6 +14,14 @@ services:
         value: "3.11.9"
       - key: SECRET_KEY
         generateValue: true
+      # Proxies between the internet and this app. Verify after deploying with
+      # GET /api/debug/client-ip -- resolved_ip must match your public address.
+      - key: PROXY_HOPS
+        value: "1"
+      # Optional: free MaxMind key enables real geolocation instead of
+      # simulated locations. https://www.maxmind.com/en/geolite2/signup
+      - key: MAXMIND_LICENSE_KEY
+        sync: false
       # Leave DATABASE_URL unset to use the bundled SQLite file, or attach a
       # Postgres instance and paste its Internal Database URL here.
       - key: DATABASE_URL

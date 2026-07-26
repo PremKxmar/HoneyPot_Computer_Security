@@ -1,6 +1,7 @@
-from flask import Flask, Response
+from flask import Flask, Response, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
+from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 from models.log_entry import db
 from routes.honeypot import honeypot_bp
@@ -12,6 +13,24 @@ from utils.sse import announcer
 load_dotenv()
 
 app = Flask(__name__)
+
+# Recover the real client IP when running behind a reverse proxy.
+#
+# Render (and every other managed host) terminates TLS at a proxy and forwards
+# to the app over loopback, so request.remote_addr is the proxy -- every attack
+# gets logged as 127.0.0.1 and geolocates to the same place. The attacker's
+# address is in X-Forwarded-For instead.
+#
+# PROXY_HOPS is the number of proxies between the internet and this app.
+# ProxyFix counts from the right of X-Forwarded-For, so the value must match
+# the real chain: too low and you log the outermost proxy, too high and a
+# client can spoof its own address by sending the header itself. Set it to 0
+# when running directly on a public port with no proxy in front.
+proxy_hops = int(os.getenv('PROXY_HOPS', '1'))
+if proxy_hops > 0:
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app, x_for=proxy_hops, x_proto=proxy_hops, x_host=proxy_hops
+    )
 
 # Postgres (Render/Railway) if DATABASE_URL is set, otherwise a local SQLite file.
 # SQLAlchemy 2.x dropped the legacy "postgres://" scheme that some providers
@@ -40,6 +59,24 @@ with app.app_context():
 @app.route('/')
 def index():
     return "Honeypot Backend Running"
+
+
+@app.route('/api/debug/client-ip')
+def client_ip():
+    """Report how the request's source address is being resolved.
+
+    Use this once after deploying to set PROXY_HOPS correctly: call it from a
+    browser and compare `resolved_ip` against your real public address. If they
+    differ, `forwarded_for` shows the full chain -- count from the right to find
+    the position your address occupies, and set PROXY_HOPS to that number.
+    """
+    forwarded = request.headers.get('X-Forwarded-For', '')
+    return jsonify({
+        'resolved_ip': request.remote_addr,
+        'forwarded_for': [h.strip() for h in forwarded.split(',') if h.strip()],
+        'proxy_hops': proxy_hops,
+        'hint': 'resolved_ip should equal your public IP; if not, adjust PROXY_HOPS',
+    })
 
 @app.route('/api/stream')
 def stream():

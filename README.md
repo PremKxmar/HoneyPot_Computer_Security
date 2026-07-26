@@ -509,6 +509,7 @@ Every one of these logs the request and returns a deliberately misleading respon
 | POST | `/api/block-ip` | Add an IP to the blocklist |
 | GET | `/api/blocked-ips` | Current blocklist |
 | POST | `/api/reports/generate` | PDF incident report |
+| GET | `/api/debug/client-ip` | How the caller's IP is being resolved (proxy setup check) |
 
 ### Authentication
 
@@ -589,9 +590,46 @@ scheme that Railway still emits.
 | Variable | Service | Required | Purpose |
 |---|---|---|---|
 | `SECRET_KEY` | backend | Yes in production | JWT signing key |
+| `PROXY_HOPS` | backend | Yes behind a proxy | Proxies in front of the app; see below |
 | `DATABASE_URL` | backend | No | Postgres URL; defaults to local SQLite |
+| `MAXMIND_LICENSE_KEY` | backend | No | Enables real geolocation at build time |
 | `BACKEND_URL` | frontend | Yes when split-hosted | Backend base URL, baked in at build time |
 | `GEMINI_API_KEY` | frontend | No | Enables the AI assistant panel |
+
+### Getting the attacker's real IP
+
+Managed hosts terminate TLS at a proxy and forward to the app over loopback, so
+`request.remote_addr` is the *proxy* — every attack lands in the database as
+`127.0.0.1` and geolocates to the same point, which quietly kills the map. The
+attacker's address is in `X-Forwarded-For` instead.
+
+`app.py` applies Werkzeug's `ProxyFix`, which reads that header counting from
+the right. The count has to match the real chain: too low and you log the
+outermost proxy, too high and a client can spoof its own address simply by
+sending the header itself. Hence `PROXY_HOPS` rather than a hardcoded guess.
+
+Confirm it after deploying:
+
+```bash
+curl https://your-backend.onrender.com/api/debug/client-ip
+```
+
+`resolved_ip` should equal your public address. If it doesn't, `forwarded_for`
+returns the whole chain — count from the right to find your address's position
+and set `PROXY_HOPS` to that number.
+
+### Real geolocation
+
+The GeoLite2 database is not committed, so a fresh deployment geolocates to
+simulated cities (clearly labelled as such in the UI). For real coordinates,
+sign up for a [free MaxMind key](https://www.maxmind.com/en/geolite2/signup),
+set `MAXMIND_LICENSE_KEY`, and let the build fetch it:
+
+```
+pip install -r requirements.txt && bash scripts/fetch_geoip.sh
+```
+
+The script is a no-op without a key, so builds keep working either way.
 
 ---
 
@@ -604,6 +642,9 @@ Being upfront about what this is and isn't:
   on restart. Real enforcement would need a firewall integration.
 - **Email alerts are simulated.** The configuration and history endpoints work,
   but no SMTP client is wired in yet.
+- **Geolocation degrades to simulated cities** unless a MaxMind key is supplied
+  at build time, since the licence forbids committing the database. The UI
+  labels those results, but the map is decorative until you provide a key.
 - **The model covers five of the ten categories.** The other five rely entirely
   on hand-written rules, which generalise to novel payloads far worse than a
   trained classifier would. Labelling those categories and retraining is the
